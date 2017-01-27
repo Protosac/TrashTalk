@@ -17,58 +17,59 @@ import json
 class WatchArea(object):        
 
         def __init__(self, area, typeIssue):
-                self.baseCall = "https://seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
-                self.baseCallReporter = "https://seeclickfix.com/api/v2/users?lat=%f&lng=%f"
-                self.area = area
-                self.allIssues = dict()
-                self.allReporters = dict()
-                self.page = 1
-                self.typeIssue = typeIssue
+            self.baseCall = "https://seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
+            self.baseCallReporter = "https://seeclickfix.com/api/v2/users?lat=%f&lng=%f"
+            self.area = area
+            self.allIssues = dict()
+            self.allReporters = dict()
+            self.page = 1
+            self.typeIssue = typeIssue
                 
         #Add new dumping sites to hashtable
         def callForIssues(self):
-                callWatchArea = urllib.urlopen(self.baseCall % (self.page, self.area))
-                readWatchArea = callWatchArea.read()
-                watchArea = json.loads(readWatchArea)
-                issues = watchArea['issues']
-                for issue in issues:
-                    summary = issue['summary']
-                    if self.typeIssue in summary:
-                        ident = issue['id']
-                        lat = issue['lat']
-                        lng = issue['lng']
-                        dSite = DumpingSite(ident, summary, lat, lng)
-                        self.allIssues[ident] = dSite
-                self.page = watchArea['metadata']['pagination']['next_page']
-                
+            callWatchArea = urllib.urlopen(self.baseCall % (self.page, self.area))
+            readWatchArea = callWatchArea.read()
+            watchArea = json.loads(readWatchArea)
+            issues = watchArea['issues']
+            for issue in issues:
+                summary = issue['summary']
+                if self.typeIssue in summary:
+                    ident = issue['id']
+                    status = issue['status']
+                    lat = issue['lat']
+                    lng = issue['lng']
+                    dSite = DumpingSite(ident, status, summary, lat, lng)
+                    self.allIssues[ident] = dSite
+            self.page = watchArea['metadata']['pagination']['next_page']
+
         #Add new reporters to hashtable
         def callForReporters(self):
-                #Cycle through all of the issues
-                for key in self.allIssues.keys():
-                        #Call the API and get the reporters for each issue. Calls are based on the GPS Coordinates of the dumping site
-                        issue = self.allIssues[key]
-                        lat = issue.getLat()
-                        lng = issue.getLng()
-                        ident = issue.getIdent()
-                        callReporters = urllib.urlopen(self.baseCallReporter % (lat, lng))
-                        readReporters = callReporters.read()
-                        reporters = json.loads(readReporters)
-                        #Cycle through each reporter
-                        reporter = reporters['users']
-                        for each in reporter:                                
-                                eachID = each['id']
-                                eachName = each['name']
-                                #Add its ID to the dumping site's keychain of reporters
-                                issue.addReporter(eachID)
-                                #Check whether the key for the reporter is already in the list of keys in the Reporter Hashtable
-                                if eachID in self.allReporters:
-                                        #If the reporter is already in the Hashtable, simply add the dumping site ID to its keychain of dumping sites
-                                        changeReporter = self.allReporters[eachID]
-                                        changeReporter.addDumpingSite(ident)                                       
-                                #Else, create a new reporter with the site ID on its chain, add it to the allReporters Hashtable 
-                                else:
-                                        newReporter = Reporters(eachID, eachName, ident)
-                                        self.allReporters[eachID] = newReporter
+            #Cycle through all of the issues
+            for key in self.allIssues.keys():
+                #Call the API and get the reporters for each issue. Calls are based on the GPS Coordinates of the dumping site
+                issue = self.allIssues[key]
+                lat = issue.getLat()
+                lng = issue.getLng()
+                ident = issue.getIdent()
+                callReporters = urllib.urlopen(self.baseCallReporter % (lat, lng))
+                readReporters = callReporters.read()
+                reporters = json.loads(readReporters)
+                #Cycle through each reporter
+                reporter = reporters['users']
+                for each in reporter:                                
+                    eachID = each['id']
+                    eachName = each['name']
+                    #Add its ID to the dumping site's keychain of reporters
+                    issue.addReporter(eachID)
+                    #Check whether the key for the reporter is already in the list of keys in the Reporter Hashtable
+                    if eachID in self.allReporters:
+                        #If the reporter is already in the Hashtable, simply add the dumping site ID to its keychain of dumping sites
+                        changeReporter = self.allReporters[eachID]
+                        changeReporter.addDumpingSite(ident)                                       
+                    #Else, create a new reporter with the site ID on its chain, add it to the allReporters Hashtable 
+                    else:
+                        newReporter = Reporters(eachID, eachName, ident)
+                        self.allReporters[eachID] = newReporter
                      
         def getIssues(self):
                 return (self.allIssues)
@@ -77,15 +78,15 @@ class WatchArea(object):
                 return (self.allReporters)
         
         def displayIssues(self):
-                for key in self.allIssues.keys():
-                        singleSite = self.allIssues[key]
-                        #print ("Identity: %s, Summary: %s, Lat: %s, Long: %s" % (key, singleSite.getSummary(), singleSite.getLat(), singleSite.getLng()))
-                        print ("Summary: %s, A Reporter: %s" % (singleSite.getSummary(), singleSite.getOneReporter()))        
+            for key in self.allIssues.keys():
+                singleSite = self.allIssues[key]
+                #print ("Identity: %s, Summary: %s, Lat: %s, Long: %s" % (key, singleSite.getSummary(), singleSite.getLat(), singleSite.getLng()))
+                print ("Summary: %s, Status: %s, A Reporter: %s" % (singleSite.getSummary(), singleSite.getStatus(), singleSite.getOneReporter()))        
 
         def displayReporters(self):
-                for key in self.allReporters.keys():
-                        singleReporter = self.allReporters[key]
-                        print("Name: %s, A Dumping Site: %s" % (singleReporter.getName(), singleReporter.getOneDumpingSite()))
+            for key in self.allReporters.keys():
+                singleReporter = self.allReporters[key]
+                print("Name: %s, A Dumping Site: %s" % (singleReporter.getName(), singleReporter.getOneDumpingSite()))
 
                         
 ##Structure Driven Objects                        
@@ -93,34 +94,48 @@ class WatchArea(object):
 ##Functions Include: 
 class DumpingSite(object):
         
-        def __init__(self, ident, summary, lat, lng):
-                self.ident = ident
-                self.summary = summary
-                self.lat = lat
-                self.lng = lng
-                self.reporters = [] #say 'reporters' not 'users' #It's only the id, not the whole object
+        def __init__(self, ident, summary, status, lat, lng):
+            self.ident = ident
+            self.summary = summary
+            self.status = status
+            self.lat = lat
+            self.lng = lng                
+            self.reporters = [] #say 'reporters' not 'users' #It's only the id, not the whole object
 
         ##Modification Functions
         def addReporter(self, newReporter):
-                self.reporters.append(newReporter)
+            self.reporters.append(newReporter)
+        
+        def closeSite(self):
+            self.status = "closed"
+            
+        def acknowledgeSite(self):
+            self.status = "acknowledged"
+            
+        def openSite(self):
+            self.status = "open"
+            
         ##Retrieval Functions
         def getIdent(self):
-                return(self.ident)
+            return(self.ident)
 
         def getSummary(self):
-                return(self.summary)      
+            return(self.summary)
+        
+        def getStatus(self):
+            return (self.status)
 
         def getLat(self):
-                return(self.lat)
+            return(self.lat)
 
         def getLng(self):
-                return(self.lng)
+            return(self.lng)
 
         def getReporters(self):
-                return(self.reporters)
+            return(self.reporters)
 
         def getOneReporter(self):
-                return(self.reporters[0])
+            return(self.reporters[0])
                 
 ##Identify Each User and give it keys to each dumping Site associated with it 
 class Reporters(object):
@@ -149,21 +164,22 @@ class Reporters(object):
 ###Under Construction
 class MeetUp(object):
 
-        def __init__(self, dumpSite, inviteList):
-                self.host = {}
-                self.guestList = {}
-                self.inviteList = inviteList
-                self.dumpSite = dumpSite
+    def __init__(self, dumpSite, inviteList):
+        self.host = {}
+        self.guestList = {}
+        self.inviteList = inviteList
+        self.dumpSite = dumpSite
                 
         
 def main():
-        localWatchArea = 181 #Oakland Watch Area
-        typeIssue = "Pothole"
-        oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
-        oaklandWatchArea.callForIssues()
-        oaklandWatchArea.callForReporters()
-        oaklandWatchArea.displayIssues()
-        oaklandWatchArea.displayReporters()            
+    localWatchArea = 181 #Oakland Watch Area
+    typeIssue = "Pothole"
+    oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
+    oaklandWatchArea.callForIssues()
+    oaklandWatchArea.callForReporters()
+    oaklandWatchArea.displayIssues()
+    oaklandWatchArea.displayReporters()
+    print("end")
 
 main()        
 
