@@ -16,13 +16,14 @@ import json
         ##                      2) Checking for Reporters using the issues hash table and adding new ones to its hashtable
 class WatchArea(object):        
 
-        def __init__(self, area):
+        def __init__(self, area, typeIssue):
                 self.baseCall = "https://seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
                 self.baseCallReporter = "https://seeclickfix.com/api/v2/users?lat=%f&lng=%f"
                 self.area = area
                 self.allIssues = dict()
                 self.allReporters = dict()
                 self.page = 1
+                self.typeIssue = typeIssue
                 
         #Add new dumping sites to hashtable
         def callForIssues(self):
@@ -31,8 +32,9 @@ class WatchArea(object):
                 watchArea = json.loads(readWatchArea)
                 issues = watchArea['issues']
                 for issue in issues:
+                    summary = issue['summary']
+                    if self.typeIssue in summary:
                         ident = issue['id']
-                        summary = issue['summary']
                         lat = issue['lat']
                         lng = issue['lng']
                         dSite = DumpingSite(ident, summary, lat, lng)
@@ -156,7 +158,8 @@ class MeetUp(object):
         
 def main():
         localWatchArea = 181 #Oakland Watch Area
-        oaklandWatchArea = WatchArea(localWatchArea)
+        typeIssue = "Pothole"
+        oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
         oaklandWatchArea.callForIssues()
         oaklandWatchArea.callForReporters()
         oaklandWatchArea.displayIssues()
