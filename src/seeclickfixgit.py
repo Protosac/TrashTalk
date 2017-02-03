@@ -17,8 +17,8 @@ import json
 class WatchArea(object):        
 
         def __init__(self, area, typeIssue):
-            self.baseCall = "https://seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
-            self.baseCallReporter = "https://seeclickfix.com/api/v2/users?lat=%f&lng=%f"
+            self.baseCall = "https://test.seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
+            self.baseCallReporter = "https://test.seeclickfix.com/api/v2/users?lat=%f&lng=%f"
             self.area = area
             self.allIssues = dict()
             self.allReporters = dict()
@@ -173,12 +173,20 @@ class MeetUp(object):
         
 def main():
     localWatchArea = 181 #Oakland Watch Area
-    typeIssue = "Pothole"
+    typeIssue = ""
     oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
     oaklandWatchArea.callForIssues()
     oaklandWatchArea.callForReporters()
-    oaklandWatchArea.displayIssues()
-    oaklandWatchArea.displayReporters()
+#    oaklandWatchArea.displayIssues()
+#    oaklandWatchArea.displayReporters()
+#    reporters = oaklandWatchArea.getReporters()
+#    for key in reporters.keys():
+#        reporter = reporters[key]
+#        print(reporter.getDumpingSites())
+    issues = oaklandWatchArea.getIssues()
+    for key in issues.keys():
+        issue = issues[key]
+        print(issue.getReporters())
     print("end")
 
 main()        
