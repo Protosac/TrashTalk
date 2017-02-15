@@ -6,7 +6,9 @@
 __author__ = "miller.tim"
 __date__ = "$Jan 26, 2017 6:06:40 PM$"
 
-import urllib
+
+import urllib2
+import base64
 import json
 
 
@@ -27,7 +29,7 @@ class WatchArea(object):
                 
         #Add new dumping sites to hashtable
         def callForIssues(self):
-            callWatchArea = urllib.urlopen(self.baseCall % (self.page, self.area))
+            callWatchArea = urllib2.urlopen(self.baseCall % (self.page, self.area))
             readWatchArea = callWatchArea.read()
             watchArea = json.loads(readWatchArea)
             issues = watchArea['issues']
@@ -38,8 +40,10 @@ class WatchArea(object):
                     status = issue['status']
                     lat = issue['lat']
                     lng = issue['lng']
-                    dSite = DumpingSite(ident, status, summary, lat, lng)
+                    address = issue['address']
+                    dSite = DumpingSite(ident, status, summary, lat, lng, address)
                     self.allIssues[ident] = dSite
+#                    print('summary: %s, id: %s' % (summary, ident))
             self.page = watchArea['metadata']['pagination']['next_page']
 
         #Add new reporters to hashtable
@@ -51,7 +55,7 @@ class WatchArea(object):
                 lat = issue.getLat()
                 lng = issue.getLng()
                 ident = issue.getIdent()
-                callReporters = urllib.urlopen(self.baseCallReporter % (lat, lng))
+                callReporters = urllib2.urlopen(self.baseCallReporter % (lat, lng))
                 readReporters = callReporters.read()
                 reporters = json.loads(readReporters)
                 #Cycle through each reporter
@@ -70,7 +74,10 @@ class WatchArea(object):
                     else:
                         newReporter = Reporters(eachID, eachName, ident)
                         self.allReporters[eachID] = newReporter
-                     
+        
+        def getNumIssues(self):
+                return (len(self.allIssues))
+        
         def getIssues(self):
                 return (self.allIssues)
 
@@ -91,15 +98,15 @@ class WatchArea(object):
                         
 ##Structure Driven Objects                        
 ##Identify Each Dumping Site and Give it keys(ids) to all of its reporters
-##Functions Include: 
 class DumpingSite(object):
         
-        def __init__(self, ident, summary, status, lat, lng):
+        def __init__(self, ident, summary, status, lat, lng, address):
             self.ident = ident
             self.summary = summary
             self.status = status
             self.lat = lat
-            self.lng = lng                
+            self.lng = lng
+            self.address = address
             self.reporters = [] #say 'reporters' not 'users' #It's only the id, not the whole object
 
         ##Modification Functions
@@ -130,6 +137,9 @@ class DumpingSite(object):
 
         def getLng(self):
             return(self.lng)
+        
+        def getAddress(self):
+            return(self.address)
 
         def getReporters(self):
             return(self.reporters)
@@ -161,34 +171,62 @@ class Reporters(object):
                 return(self.dumpingSites[0])
 
         
-###Under Construction
-class MeetUp(object):
+###Create a Clean-Up for a dumping site
+class CleanUp(object):
 
-    def __init__(self, dumpSite, inviteList):
-        self.host = {}
-        self.guestList = {}
-        self.inviteList = inviteList
-        self.dumpSite = dumpSite
-                
+        def __init__(self, dumpingSite):
+            self.dumpingSite = dumpingSite
+            self.data = {}
+            self.description = "Clean up dumping Site (id: %s) at: trashtalk.com"
+
+        def setData(self):
+            self.data={
+                "lat":self.dumpingSite.getLat(),
+                "lng":self.dumpingSite.getLng(),
+                "address":self.dumpingSite.getAddress(),
+                "request_type_id":"other",
+                "answers":{
+                    "summary":"Meet-Up to Clean-Up",
+                    "description": self.description % self.dumpingSite.getIdent()
+                }
+            }
+        
+        def postCleanUp(self):
+            username = ""#Requires a username and password for test.seeclickfix.com
+            password = ""
+            api_request = urllib2.Request("https://test.seeclickfix.com/api/v2/issues")#Currently Posts to the test site
+            api_request.add_header("Content-type", "application/json")
+            api_request.add_header("Authorization", "Basic "+base64.b64encode(username+":"+password))
+            api_response = urllib2.urlopen(api_request, json.dumps(self.data))
+            response_data = json.loads(api_response.read())
+            return response_data
+                     
         
 def main():
-    localWatchArea = 181 #Oakland Watch Area
-    typeIssue = ""
+    localWatchArea = 35332 #Oakland Test Watch Area
+    typeIssue = "Illegal Dumping"    
     oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
-    oaklandWatchArea.callForIssues()
-    oaklandWatchArea.callForReporters()
-#    oaklandWatchArea.displayIssues()
-#    oaklandWatchArea.displayReporters()
-#    reporters = oaklandWatchArea.getReporters()
-#    for key in reporters.keys():
-#        reporter = reporters[key]
-#        print(reporter.getDumpingSites())
-    issues = oaklandWatchArea.getIssues()
-    for key in issues.keys():
-        issue = issues[key]
-        print(issue.getReporters())
+    
+#    Call the API until there is at least one dumping Area
+    i = 0
+    while oaklandWatchArea.getNumIssues() <= 0 and i < 10:
+        oaklandWatchArea.callForIssues()
+        i =+ 1 
+    dumpingSites = oaklandWatchArea.getIssues()
+    
+#    Currently, one site is maintained. However, this can be expanded
+    for key in dumpingSites.keys():
+        dumpingSite = dumpingSites[key]
+        
+#   Create a Clean Up for the chosen dumping site
+    cleanup = CleanUp(dumpingSite)
+    cleanup.setData()
+    response = cleanup.postCleanUp()
+
+    print(response)
     print("end")
 
 main()        
+
 
 
