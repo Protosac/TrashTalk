@@ -5,8 +5,7 @@
 __author__ = "miller.tim"
 __date__ = "$Feb 17, 2017 9:33:11 AM$"
 
-import urllib2
-import json
+import requests
 from dumpingsites import DumpingSite
 from reporters import Reporters
 
@@ -24,9 +23,8 @@ class WatchArea(object):
                 
         #Add new dumping sites to hashtable
         def callForIssues(self):
-            callWatchArea = urllib2.urlopen(self.baseCallIssue % (self.page, self.area))
-            readWatchArea = callWatchArea.read()
-            watchArea = json.loads(readWatchArea)
+            callWatchArea = requests.get(self.baseCallIssue % (self.page, self.area))
+            watchArea = callWatchArea.json()
             issues = watchArea['issues']
             for issue in issues:
                 summary = issue['summary']
@@ -50,9 +48,8 @@ class WatchArea(object):
                 lat = issue.getLat()
                 lng = issue.getLng()
                 ident = issue.getIdent()
-                callReporters = urllib2.urlopen(self.baseCallReporter % (lat, lng))
-                readReporters = callReporters.read()
-                reporters = json.loads(readReporters)
+                callReporters = requests.get(self.baseCallReporter % (lat, lng))
+                reporters = callReporters.json()
                 #Cycle through each reporter
                 reporter = reporters['users']
                 for each in reporter:                                
