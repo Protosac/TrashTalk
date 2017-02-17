@@ -1,4 +1,4 @@
-#Create object for dumping sites 
+#Manage Dumping Sites in the Watch Area
 
 __author__ = "miller.tim"
 __date__ = "$Feb 17, 2017 9:38:02 AM$"
