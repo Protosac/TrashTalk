@@ -1,232 +1,51 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
+## Manipulate the SeeClickFix API to find illegal dumping sites
+## Then, post a clean-up message with a link to a community organizer website
 
-##
 __author__ = "miller.tim"
 __date__ = "$Jan 26, 2017 6:06:40 PM$"
 
+from watchareas import WatchArea
+from cleanup import CleanUp
 
-import urllib2
-import base64
-import json
-
-
-##Function driven object        
-#Monitor A Watch area. Give it a hash table for dumping sites and another for reporters/users
-        ##Functions include:    1) Checking for dumping sites using the API and adding new ones to the sites hashtable
-        ##                      2) Checking for Reporters using the issues hash table and adding new ones to its hashtable
-class WatchArea(object):        
-
-        def __init__(self, area, typeIssue):
-            self.baseCall = "https://test.seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
-            self.baseCallReporter = "https://test.seeclickfix.com/api/v2/users?lat=%f&lng=%f"
-            self.area = area
-            self.allIssues = dict()
-            self.allReporters = dict()
-            self.page = 1
-            self.typeIssue = typeIssue
-                
-        #Add new dumping sites to hashtable
-        def callForIssues(self):
-            callWatchArea = urllib2.urlopen(self.baseCall % (self.page, self.area))
-            readWatchArea = callWatchArea.read()
-            watchArea = json.loads(readWatchArea)
-            issues = watchArea['issues']
-            for issue in issues:
-                summary = issue['summary']
-                if self.typeIssue in summary:
-                    ident = issue['id']
-                    status = issue['status']
-                    lat = issue['lat']
-                    lng = issue['lng']
-                    address = issue['address']
-                    dSite = DumpingSite(ident, status, summary, lat, lng, address)
-                    self.allIssues[ident] = dSite
-#                    print('summary: %s, id: %s' % (summary, ident))
-            self.page = watchArea['metadata']['pagination']['next_page']
-
-        #Add new reporters to hashtable
-        def callForReporters(self):
-            #Cycle through all of the issues
-            for key in self.allIssues.keys():
-                #Call the API and get the reporters for each issue. Calls are based on the GPS Coordinates of the dumping site
-                issue = self.allIssues[key]
-                lat = issue.getLat()
-                lng = issue.getLng()
-                ident = issue.getIdent()
-                callReporters = urllib2.urlopen(self.baseCallReporter % (lat, lng))
-                readReporters = callReporters.read()
-                reporters = json.loads(readReporters)
-                #Cycle through each reporter
-                reporter = reporters['users']
-                for each in reporter:                                
-                    eachID = each['id']
-                    eachName = each['name']
-                    #Add its ID to the dumping site's keychain of reporters
-                    issue.addReporter(eachID)
-                    #Check whether the key for the reporter is already in the list of keys in the Reporter Hashtable
-                    if eachID in self.allReporters:
-                        #If the reporter is already in the Hashtable, simply add the dumping site ID to its keychain of dumping sites
-                        changeReporter = self.allReporters[eachID]
-                        changeReporter.addDumpingSite(ident)                                       
-                    #Else, create a new reporter with the site ID on its chain, add it to the allReporters Hashtable 
-                    else:
-                        newReporter = Reporters(eachID, eachName, ident)
-                        self.allReporters[eachID] = newReporter
-        
-        def getNumIssues(self):
-                return (len(self.allIssues))
-        
-        def getIssues(self):
-                return (self.allIssues)
-
-        def getReporters(self):
-                return (self.allReporters)
-        
-        def displayIssues(self):
-            for key in self.allIssues.keys():
-                singleSite = self.allIssues[key]
-                #print ("Identity: %s, Summary: %s, Lat: %s, Long: %s" % (key, singleSite.getSummary(), singleSite.getLat(), singleSite.getLng()))
-                print ("Summary: %s, Status: %s, A Reporter: %s" % (singleSite.getSummary(), singleSite.getStatus(), singleSite.getOneReporter()))        
-
-        def displayReporters(self):
-            for key in self.allReporters.keys():
-                singleReporter = self.allReporters[key]
-                print("Name: %s, A Dumping Site: %s" % (singleReporter.getName(), singleReporter.getOneDumpingSite()))
-
-                        
-##Structure Driven Objects                        
-##Identify Each Dumping Site and Give it keys(ids) to all of its reporters
-class DumpingSite(object):
-        
-        def __init__(self, ident, summary, status, lat, lng, address):
-            self.ident = ident
-            self.summary = summary
-            self.status = status
-            self.lat = lat
-            self.lng = lng
-            self.address = address
-            self.reporters = [] #say 'reporters' not 'users' #It's only the id, not the whole object
-
-        ##Modification Functions
-        def addReporter(self, newReporter):
-            self.reporters.append(newReporter)
-        
-        def closeSite(self):
-            self.status = "closed"
-            
-        def acknowledgeSite(self):
-            self.status = "acknowledged"
-            
-        def openSite(self):
-            self.status = "open"
-            
-        ##Retrieval Functions
-        def getIdent(self):
-            return(self.ident)
-
-        def getSummary(self):
-            return(self.summary)
-        
-        def getStatus(self):
-            return (self.status)
-
-        def getLat(self):
-            return(self.lat)
-
-        def getLng(self):
-            return(self.lng)
-        
-        def getAddress(self):
-            return(self.address)
-
-        def getReporters(self):
-            return(self.reporters)
-
-        def getOneReporter(self):
-            return(self.reporters[0])
-                
-##Identify Each User and give it keys to each dumping Site associated with it 
-class Reporters(object):
-        #Reporters are only created from dumpingSites. Consequently, they always begin with at least one
-        def __init__(self, ident, name, dumpingSite):
-                self.ident = ident
-                self.name = name
-                self.dumpingSites = [dumpingSite] #Only the site ID
-                                
-        def addDumpingSite(self, dumpingSite):
-                self.dumpingSites.append(dumpingSite)
-
-        def getIdent(self):
-                return (self.ident)
-
-        def getName(self):
-                return (self.name)
-
-        def getDumpingSites(self):
-                return(self.dumpingSites)
-
-        def getOneDumpingSite(self):
-                return(self.dumpingSites[0])
-
-        
-###Create a Clean-Up for a dumping site
-class CleanUp(object):
-
-        def __init__(self, dumpingSite):
-            self.dumpingSite = dumpingSite
-            self.data = {}
-            self.description = "Clean up dumping Site (id: %s) at: trashtalk.com"
-
-        def setData(self):
-            self.data={
-                "lat":self.dumpingSite.getLat(),
-                "lng":self.dumpingSite.getLng(),
-                "address":self.dumpingSite.getAddress(),
-                "request_type_id":"other",
-                "answers":{
-                    "summary":"Meet-Up to Clean-Up",
-                    "description": self.description % self.dumpingSite.getIdent()
-                }
-            }
-        
-        def postCleanUp(self):
-            username = ""#Requires a username and password for test.seeclickfix.com
-            password = ""
-            api_request = urllib2.Request("https://test.seeclickfix.com/api/v2/issues")#Currently Posts to the test site
-            api_request.add_header("Content-type", "application/json")
-            api_request.add_header("Authorization", "Basic "+base64.b64encode(username+":"+password))
-            api_response = urllib2.urlopen(api_request, json.dumps(self.data))
-            response_data = json.loads(api_response.read())
-            return response_data
-                     
-        
-def main():
-    localWatchArea = 35332 #Oakland Test Watch Area
-    typeIssue = "Illegal Dumping"    
-    oaklandWatchArea = WatchArea(localWatchArea, typeIssue)
+def main():    
+    #Create an watch area for Oakaland
+    watchAreaID = 35332 #Oakland Test Watch Area
+    typeIssue = "Illegal Dumping"
+    oaklandWatchArea = WatchArea(watchAreaID, typeIssue)
     
-#    Call the API until there is at least one dumping Area
-    i = 0
-    while oaklandWatchArea.getNumIssues() <= 0 and i < 10:
-        oaklandWatchArea.callForIssues()
-        i =+ 1 
-    dumpingSites = oaklandWatchArea.getIssues()
+#    Call for dumping sites until at least one is found. 
+#    Do Not Exceed 10 pages of calls
+    maxPages = 10
+    getDumpingSites(oaklandWatchArea,maxPages)
     
-#    Currently, one site is maintained. However, this can be expanded
+    #Find all reporters associated with the found dumping sites
+    oaklandWatchArea.callForReporters()
+    #Display the dumping sites associated with each reporter
+    oaklandWatchArea.displayReporters()
+#   Display the reporters associated with each dumping site
+    oaklandWatchArea.displayIssues()
+
+#   Chose a dumping Site
     for key in dumpingSites.keys():
         dumpingSite = dumpingSites[key]
         
-#   Create a Clean Up for the chosen dumping site
-    cleanup = CleanUp(dumpingSite)
+#   Create and post a Clean Up for the chosen dumping site
+    username = ""#Requires a username and password for test.seeclickfix.com
+    password = ""
+    cleanup = CleanUp(dumpingSite, username, password)
     cleanup.setData()
     response = cleanup.postCleanUp()
-
     print(response)
     print("end")
 
-main()        
+#Function allows the calls to cycle through more than one page
+def getDumpingSites(watchArea, maxPages):
+    i = 0 
+    while watchArea.getNumIssues() <= 0 and i < maxPages:
+        watchArea.callForIssues()
+        i =+ 1  
 
+
+main()
 
 
