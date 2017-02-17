@@ -18,14 +18,15 @@ def main():
     maxPages = 10
     getDumpingSites(oaklandWatchArea,maxPages)
     
-    #Find all reporters associated with the found dumping sites
-    oaklandWatchArea.callForReporters()
-    #Display the dumping sites associated with each reporter
-    oaklandWatchArea.displayReporters()
-#   Display the reporters associated with each dumping site
-    oaklandWatchArea.displayIssues()
+#    #Find all reporters associated with the found dumping sites
+#    oaklandWatchArea.callForReporters()
+#    #Display the dumping sites associated with each reporter
+#    oaklandWatchArea.displayReporters()
+##   Display the reporters associated with each dumping site
+#    oaklandWatchArea.displayIssues()
 
 #   Chose a dumping Site
+    dumpingSites = oaklandWatchArea.getIssues()
     for key in dumpingSites.keys():
         dumpingSite = dumpingSites[key]
         
