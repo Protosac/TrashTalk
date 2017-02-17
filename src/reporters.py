@@ -1,8 +1,4 @@
-#! /usr/bin/python
-
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
+#Manage all of the users who are close to dumping sites, within a watch area
 
 __author__ = "miller.tim"
 __date__ = "$Feb 17, 2017 9:42:25 AM$"
