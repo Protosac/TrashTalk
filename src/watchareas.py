@@ -11,11 +11,12 @@ from reporters import Reporters
 
 class WatchArea(object):        
 
-        def __init__(self, area, typeIssue):
-            self.baseCallIssue = "https://test.seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d"
+        def __init__(self, area, typeIssue, status):
+            self.baseCallIssue = "https://test.seeclickfix.com/api/v2/issues?page=%d&watcher_token=%d&search=%s&status=%s"
             self.baseCallReporter = "https://test.seeclickfix.com/api/v2/users?lat=%f&lng=%f"
             self.area = area
             self.typeIssue = typeIssue
+            self.status = status
             self.allIssues = dict()
             self.allReporters = dict()
             self.page = 1
@@ -23,20 +24,17 @@ class WatchArea(object):
                 
         #Add new dumping sites to hashtable
         def callForIssues(self):
-            callWatchArea = requests.get(self.baseCallIssue % (self.page, self.area))
+            callWatchArea = requests.get(self.baseCallIssue % (self.page, self.area, self.typeIssue, self.status))
             watchArea = callWatchArea.json()
-            issues = watchArea['issues']
-            for issue in issues:
+            for issue in watchArea['issues']:
                 summary = issue['summary']
-                #Only takes issues of interests, defined in 'main'
-                if self.typeIssue in summary: 
-                    ident = issue['id']
-                    status = issue['status']
-                    lat = issue['lat']
-                    lng = issue['lng']
-                    address = issue['address']
-                    dSite = DumpingSite(ident, status, summary, lat, lng, address)
-                    self.allIssues[ident] = dSite
+                ident = issue['id']
+                status = issue['status']
+                lat = issue['lat']
+                lng = issue['lng']
+                address = issue['address']
+                dSite = DumpingSite(ident, status, summary, lat, lng, address)
+                self.allIssues[ident] = dSite
             self.page = watchArea['metadata']['pagination']['next_page']
 
         #Add new reporters to hashtable
