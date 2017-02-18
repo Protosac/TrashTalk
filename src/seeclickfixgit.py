@@ -11,7 +11,8 @@ def main():
     #Create an watch area for Oakaland
     watchAreaID = 35332 #Oakland Test Watch Area
     typeIssue = "Illegal Dumping"
-    oaklandWatchArea = WatchArea(watchAreaID, typeIssue)
+    status = "open,acknowleged"
+    oaklandWatchArea = WatchArea(watchAreaID, typeIssue, status)
     
 #    Call for dumping sites until at least one is found. 
 #    Do Not Exceed 10 pages of calls
@@ -19,16 +20,17 @@ def main():
     getDumpingSites(oaklandWatchArea,maxPages)
     
 #    #Find all reporters associated with the found dumping sites
-#    oaklandWatchArea.callForReporters()
+    oaklandWatchArea.callForReporters()
 #    #Display the dumping sites associated with each reporter
-#    oaklandWatchArea.displayReporters()
+    oaklandWatchArea.displayReporters()
 ##   Display the reporters associated with each dumping site
-#    oaklandWatchArea.displayIssues()
+    oaklandWatchArea.displayIssues()
 
 #   Chose a dumping Site
-    dumpingSites = oaklandWatchArea.getIssues()
-    for key in dumpingSites.keys():
-        dumpingSite = dumpingSites[key]
+#    dumpingSite = 0
+#    dumpingSites = oaklandWatchArea.getIssues()
+#    for key in dumpingSites.keys():
+#        dumpingSite = dumpingSites[key]
         
 #   Create and post a Clean Up for the chosen dumping site
     username = ""#Requires a username and password for test.seeclickfix.com
@@ -36,6 +38,8 @@ def main():
     cleanup = CleanUp(dumpingSite, username, password)
     cleanup.setData()
     response = cleanup.postCleanUp()
+    #Trying to acknowledge a clean up gives a 403 error
+    response = cleanup.setStatus(1317192, "close")#status can be open or closed
     print(response)
     print("end")
 
