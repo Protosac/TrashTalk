@@ -34,3 +34,13 @@ class CleanUp(object):
         def postCleanUp(self):
             api_request = requests.post(self.baseCallRequest, auth = (self.username, self.password), data = json.dumps(self.payload), headers = self.header)#Currently Posts to the test site
             return api_request
+        
+        def closeCleanUp(self):
+            id = 1317203
+            url = self.baseCallRequest + "/%s/close" % id
+            comment = json.dumps({"comment":"Test API"})#CLosing a meetup requires a comment
+            api_request = requests.post(url, auth = (self.username, self.password), data = comment, headers = self.header )
+            return api_request
+        
+
+            
