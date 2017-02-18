@@ -31,15 +31,18 @@ class CleanUp(object):
                 }
             }
         
-        def postCleanUp(self):
+        def share(self):
             api_request = requests.post(self.baseCallRequest, auth = (self.username, self.password), data = json.dumps(self.payload), headers = self.header)#Currently Posts to the test site
             return api_request
         
-        def setStatus(self, id, status):
-            url = self.baseCallRequest + "/%s/%s" % (id, status)
-            comment = json.dumps({"comment":"Test API"})#changing a status  requires a comment
+        def update(self, id, choice, comment):#choice allows either a change of status or simple post of comment
+            options = ["comments", "open", "close"]
+            url = self.baseCallRequest + "/%s/%s" % (id, options[choice])
+            comment = json.dumps({"comment":comment})#changing a status  requires a comment
             api_request = requests.post(url, auth = (self.username, self.password), data = comment, headers = self.header )
             return api_request
+        
+
         
 
             
