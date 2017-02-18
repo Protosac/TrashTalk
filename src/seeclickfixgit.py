@@ -12,34 +12,40 @@ def main():
     watchAreaID = 35332 #Oakland Test Watch Area
     typeIssue = "Illegal Dumping"
     status = "open,acknowleged"
-    oaklandWatchArea = WatchArea(watchAreaID, typeIssue, status)
-    
-#    Call for dumping sites until at least one is found. 
-#    Do Not Exceed 10 pages of calls
-    maxPages = 10
-    getDumpingSites(oaklandWatchArea,maxPages)
-    
+#    oaklandWatchArea = WatchArea(watchAreaID, typeIssue, status)
+#    
+##    Call for dumping sites until at least one is found. 
+##    Do Not Exceed 10 pages of calls
+#    maxPages = 10
+#    getDumpingSites(oaklandWatchArea,maxPages)
+#    
 #    #Find all reporters associated with the found dumping sites
-    oaklandWatchArea.callForReporters()
+#    oaklandWatchArea.callForReporters()
 #    #Display the dumping sites associated with each reporter
-    oaklandWatchArea.displayReporters()
+#    oaklandWatchArea.displayReporters()
 ##   Display the reporters associated with each dumping site
-    oaklandWatchArea.displayIssues()
+#    oaklandWatchArea.displayIssues()
 
 #   Chose a dumping Site
-#    dumpingSite = 0
+    dumpingSite = 0
 #    dumpingSites = oaklandWatchArea.getIssues()
 #    for key in dumpingSites.keys():
 #        dumpingSite = dumpingSites[key]
         
 #   Create and post a Clean Up for the chosen dumping site
-    username = ""#Requires a username and password for test.seeclickfix.com
-    password = ""
+    username = "tmiller4@binghamton.edu"#Requires a username and password for test.seeclickfix.com
+    password = "nokialumia"
     cleanup = CleanUp(dumpingSite, username, password)
-    cleanup.setData()
-    response = cleanup.postCleanUp()
-    #Trying to acknowledge a clean up gives a 403 error
-    response = cleanup.setStatus(1317192, "close")#status can be open or closed
+#    cleanup.setData()
+#    response = cleanup.share()
+    #Trying to 'acknowledge' a clean up gives a 403 error
+    id = 1317203
+#    updateType = 2 #0 = comment, 1= open, 2 =close
+#    comment = "Test: This clean-up is complete" 
+#    response = cleanup.update(1317192, "close")#status can be open or closed
+    updateType = 0 #comment
+    comment = "Test: Someone created a cleanup" 
+    response = cleanup.update(id, updateType, comment)
     print(response)
     print("end")
 
