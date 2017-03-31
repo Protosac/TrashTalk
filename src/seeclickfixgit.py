@@ -33,8 +33,8 @@ def main():
 #        dumpingSite = dumpingSites[key]
         
 #   Create and post a Clean Up for the chosen dumping site
-    username = "tmiller4@binghamton.edu"#Requires a username and password for test.seeclickfix.com
-    password = "nokialumia"
+    username = ""#Requires a username and password for test.seeclickfix.com
+    password = ""
     cleanup = CleanUp(dumpingSite, username, password)
 #    cleanup.setData()
 #    response = cleanup.share()
