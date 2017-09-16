@@ -7,9 +7,11 @@ install:
 
 # command to run tests
 before_script:
-  - psql -c 'create database travis_ci_test;' -U postgres
+  - mysql -e 'create database travis_ci_test;' -u root
+#  - psql -c 'create database travis_ci_test;' -U postgres
 
 script: pytest
 
 service:
-  postgresql
+  - mysql
+#  - postgresql

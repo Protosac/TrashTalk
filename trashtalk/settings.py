@@ -30,11 +30,13 @@ class Config(object):
     # Database Settings
     DB_HOST = os.getenv('DB_HOST', 'localhost')
     DB_USER = os.getenv('DB_USER', 'root')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'admin')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'trashtalk')
-    SQLALCHEMY_DATABASE_URI = ('mysql+pymysql://%s:%s@%s/%s' % (DB_USER, DB_PASSWORD,
-                                                                DB_HOST, DB_NAME))
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
+                                                                   DB_PASSWORD,
+                                                                   DB_HOST,
+                                                                   DB_NAME)
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # Google
@@ -58,13 +60,15 @@ class Development(Config):
     LOGGING_LEVEL = logging.INFO
 
     DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_USER = os.getenv('DB_USER', 'root')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', 'admin')
+    DB_USER = os.getenv('DB_USER', '')
+    DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_NAME = "trashtalk"
 
     # Access SQL
-    SQLALCHEMY_DATABASE_URI = ('mysql+pymysql://%s:%s@%s/%s' % (DB_USER, DB_PASSWORD,
-                                                                DB_HOST, DB_NAME))
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
+                                                                   DB_PASSWORD,
+                                                                   DB_HOST,
+                                                                   DB_NAME)
 
 
 class Testing(Config):
@@ -79,11 +83,10 @@ class Testing(Config):
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'trashtalk_test')
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(DB_USER,
-                                                                      DB_PASSWORD,
-                                                                      DB_HOST,
-                                                                      DB_PORT,
-                                                                      DB_NAME)
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
+                                                                   DB_PASSWORD,
+                                                                   DB_HOST,
+                                                                   DB_NAME)
 
 
 class Production(Config):
@@ -99,5 +102,7 @@ class Production(Config):
     DB_NAME = "trashtalk"
 
     # Access SQL
-    SQLALCHEMY_DATABASE_URI = ('mysql+pymysql://%s:%s@%s/%s' % (DB_USER, DB_PASSWORD,
-                                                                DB_HOST, DB_NAME))
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
+                                                                   DB_PASSWORD,
+                                                                   DB_HOST,
+                                                                   DB_NAME)
