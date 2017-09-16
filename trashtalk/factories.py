@@ -1,10 +1,14 @@
 from flask import Flask
+from flask_login import LoginManager
 from werkzeug.utils import find_modules, import_string
 
-from flask_login import LoginManager
+import factory
+from faker import Faker
+
 from trashtalk.models import *
 
 login_manager = LoginManager()
+fake = Faker()
 
 
 def app_factory(config_obj):
@@ -88,3 +92,14 @@ def user_factory(**data):
     )
     user.save()
     return user
+
+
+class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = User
+        sqlalchemy_session = db_session
+
+    id = factory.Sequence(lambda n: n)
+    username = factory.Sequence(lambda n: 'User%d' % n)
+    password = 'password'
+    email = factory.Sequence(lambda n: 'user%d@example.com' % n)

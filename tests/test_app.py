@@ -1,7 +1,6 @@
 import pytest
 
-from trashtalk.factories import app_factory
-from .factories import *
+from trashtalk.factories import *
 
 
 @pytest.fixture(scope='module')
@@ -17,11 +16,9 @@ def client(request):
     """
     app = app_factory('trashtalk.settings.Testing')
     app.testing = True
-    # app.config.from_object('trashtalk.settings.Testing')
 
     def teardown():
         db_session.remove()
-        db_session.drop_all()
 
     request.addfinalizer(teardown)
     return app.test_client()
@@ -50,13 +47,21 @@ class TestTrashTalkView:
         assert response.status_code == 200 or 301
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.usefixture('client')
 class TestUserLogin:
     """
     Tests that require database access.
     TODO: Setup test database.
     """
+
+    def test_signup_registration(self, client):
+        user = UserFactory()
+        response = client.post('/register', data={'username': user.username,
+                                                  'email': user.email,
+                                                  'password': user.password,
+                                                  'confirm_password': user.password})
+        assert response.status_code == 201 or 302
 
     def test_login(self, client):
         user = UserFactory(username='bigjoe', password='password')
@@ -66,15 +71,13 @@ class TestUserLogin:
         assert response.status_code == 200
         client.get('/logout')
 
+    def test_not_found_user(self, client):
+        response = client.get('/users/1001')
+        assert response.status_code == 404
+
     def test_unauthorized_user(self, client):
         response = client.get('/users/1')
         assert response.status_code == 403
-
-    def test_signup_registration(self, client):
-        response = client.post('/register', data={'username': 'test',
-                                                  'password': 'password',
-                                                  'confirm_password': 'password'})
-        assert response.status_code == 201
 
 
 @pytest.mark.skip

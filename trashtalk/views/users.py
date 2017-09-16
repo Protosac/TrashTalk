@@ -35,9 +35,12 @@ def get(user_id):
     :return:
     """
     user = db_session.query(User).get(user_id)
-    return render_template("user/show.html",
-                           username=user.username,
-                           email=user.email)
+    if user:
+        return render_template("user/show.html",
+                               username=user.username,
+                               email=user.email)
+    else:
+        return redirect(url_for("home.welcome"), code=status.HTTP_404_NOT_FOUND)
 
 
 @bp.route('/<int:user_id>', methods=['POST', 'PUT', 'DELETE'])
