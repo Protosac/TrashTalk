@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_login import login_required
+from flask import (Blueprint, current_app, render_template,
+                   request, flash, redirect, url_for)
+from flask_login import current_user, login_required
 
 from trashtalk.utils import status
 from trashtalk.models import User, db_session
@@ -20,6 +21,8 @@ def edit(user_id):
     :return:
     """
     user = db_session.query(User).get(user_id)
+    if current_user is not user:
+        return redirect(url_for('home.welcome'), code=status.HTTP_403_FORBIDDEN)
     return render_template("user/edit.html",
                            user_id=user.id,
                            password_pattern = html_constants.password_pattern,
@@ -63,6 +66,9 @@ def post(user_id):
     current_app.logger.info("Request method: %s", method)
     if method == 'PUT':
         current_app.logger.info("Process PUT")
+        # First check that current user has permission to edit this profile
+        if current_user is not user:
+            return redirect(url_for('home.welcome'), code=status.HTTP_403_FORBIDDEN)
         password = request.form['password']
         if password and (password == request.form['confirm_password']):
             user.update_password(request.form['password'])

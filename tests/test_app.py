@@ -15,6 +15,7 @@ def client(request):
     http://flask.pocoo.org/docs/0.12/config
     """
     app = app_factory('trashtalk.settings.Testing')
+    app.config.from_pyfile('test.cfg')
     app.testing = True
 
     def teardown():
@@ -33,7 +34,7 @@ class TestTrashTalkView:
     TODO: Parametrize and collapse endpoints into a single function.
     """
 
-    def test_view_home_page(self, client):
+    def test_view_home(self, client):
         response = client.get('/')
         # client.add_template_test(fn, val)
         assert response.status_code == 200
@@ -76,7 +77,11 @@ class TestUserLogin:
         assert response.status_code == 404
 
     def test_unauthorized_user(self, client):
-        response = client.get('/users/1')
+        user = UserFactory(username='bigjoe', password='password')
+        client.post('/login',
+                    data={'username': user.username,
+                          'password': user.password})
+        response = client.get('/users/1/edit')
         assert response.status_code == 403
 
 
