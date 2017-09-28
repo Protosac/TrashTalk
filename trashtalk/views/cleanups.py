@@ -236,36 +236,36 @@ def send_to_scf(id):
     db_session.commit()
     return redirect(url_for('cleanups.get', cleanup_id=id))
   
-  -#  Start Coordination with Public Works
--@bp.route('/send_to_pw/<id>')
--@login_required
--# Rename to show only starting process
--def send_to_pw(id):
--
--    return render_template("cleanup/send_to_pw_really.html",
--                           section="Public Works",
--                           time_placeholder = html_constants.time_placeholder,
--                           time_pattern = html_constants.time_pattern,
--                           date_placeholder = html_constants.date_placeholder,
--                           date_pattern = html_constants.date_pattern,
--                           id=id)
--
--
--#  Fill out and submit data to Public Works
--@bp.route('/send_to_pw_really/<id>', methods=["POST"])
--@login_required
--# Rename to emphasize actually coordination data
--def send_to_pw_really(id):
--    """
--    send clean-up data to Public Works google sheet
--    :param id:
--    :return:
--    """
--    tool_data=request.form.copy()
--    send_to_sheet(id, tool_data)  # Very slow function
--    cleanup = db_session.query(Cleanup).get(id)
--    cleanup.notified_pw=True
--    db_session.add(cleanup)
--    db_session.commit()
--
--    return redirect(url_for('cleanups.get', cleanup_id=id))
+#  Start Coordination with Public Works
+@bp.route('/send_to_pw/<id>')
+@login_required
+# Rename to show only starting process
+def send_to_pw(id):
+
+    return render_template("cleanup/send_to_pw_really.html",
+                           section="Public Works",
+                           time_placeholder = html_constants.time_placeholder,
+                           time_pattern = html_constants.time_pattern,
+                           date_placeholder = html_constants.date_placeholder,
+                           date_pattern = html_constants.date_pattern,
+                           id=id)
+
+
+#  Fill out and submit data to Public Works
+@bp.route('/send_to_pw_really/<id>', methods=["POST"])
+@login_required
+# Rename to emphasize actually coordination data
+def send_to_pw_really(id):
+    """
+    send cleanup data to Public Works google sheet
+    :param id:
+    :return:
+    """
+    tool_data=request.form.copy()
+    send_to_sheet(id, tool_data)  # Very slow function
+    cleanup = db_session.query(Cleanup).get(id)
+    cleanup.notified_pw=True
+    db_session.add(cleanup)
+    db_session.commit()
+
+    return redirect(url_for('cleanups.get', cleanup_id=id))

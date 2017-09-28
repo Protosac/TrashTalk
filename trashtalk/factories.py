@@ -45,6 +45,7 @@ def register_all_blueprints(app):
     :return:
     """
     for view in find_modules('trashtalk.views'):
+        print(view)
         mod = import_string(view)
         uniq = set()
         if hasattr(mod, 'bp'):

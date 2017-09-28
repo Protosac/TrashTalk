@@ -7,7 +7,7 @@ install:
 
 # command to run tests
 before_script:
-  - mysql -e 'create database travis_ci_test;' -u root
+  - mysql -e 'create database trashtalk;' -u root
 #  - psql -c 'create database travis_ci_test;' -U postgres
 
 script: pytest
