@@ -83,10 +83,17 @@ class Testing(Config):
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'trashtalk_test')
+<<<<<<< HEAD
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
                                                                    DB_PASSWORD,
                                                                    DB_HOST,
                                                                    DB_NAME)
+=======
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(DB_USER,
+                                                                      DB_PASSWORD,
+                                                                      DB_HOST,
+                                                                      DB_NAME)
+>>>>>>> c6e3615f2550cd213f97eedd7fbf40262ba35fd8
 
 
 class Production(Config):
@@ -103,6 +110,12 @@ class Production(Config):
 
     # Access SQL
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
+<<<<<<< HEAD
                                                                    DB_PASSWORD,
                                                                    DB_HOST,
                                                                    DB_NAME)
+=======
+                                                                    DB_PASSWORD,
+                                                                    DB_HOST,
+                                                                    DB_NAME)
+>>>>>>> c6e3615f2550cd213f97eedd7fbf40262ba35fd8
