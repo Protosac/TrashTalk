@@ -6,6 +6,7 @@ import factory
 from faker import Faker
 
 from trashtalk.models import *
+from trashtalk.views import *
 
 login_manager = LoginManager()
 fake = Faker()
@@ -45,14 +46,12 @@ def register_all_blueprints(app):
     :return:
     """
     for view in find_modules('trashtalk.views'):
-        print(view)
-        mod = import_string(view)
         uniq = set()
-        if hasattr(mod, 'bp'):
+        if hasattr(view, 'bp'):
             # Avoid duplicate imports
-            if mod not in uniq:
-                uniq.add(mod)
-                app.register_blueprint(mod.bp)
+            if view not in uniq:
+                uniq.add(view)
+                app.register_blueprint(view.bp)
     app.logger.info("Blueprints registered.")
 
 
