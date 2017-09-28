@@ -41,13 +41,12 @@ def register_all_blueprints(app):
     :return:
     """
     for view in find_modules('trashtalk.views'):
-        mod = import_string(view)
         uniq = set()
-        if hasattr(mod, 'bp'):
+        if hasattr(view, 'bp'):
             # Avoid duplicate imports
-            if mod not in uniq:
-                uniq.add(mod)
-                app.register_blueprint(mod.bp)
+            if view not in uniq:
+                uniq.add(view)
+                app.register_blueprint(view.bp)
     app.logger.info("Blueprints registered.")
 
 
