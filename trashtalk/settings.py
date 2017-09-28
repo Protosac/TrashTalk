@@ -29,11 +29,7 @@ class Config(object):
 
     # Database Settings
     DB_HOST = os.getenv('DB_HOST', 'localhost')
-<<<<<<< HEAD
-    DB_USER = os.getenv('DB_USER', 'root')
-=======
     DB_USER = os.getenv('DB_USER', '')
->>>>>>> 491e4d69d26ed0dd3d502c5d068da246f393b854
     DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'trashtalk')
@@ -87,17 +83,10 @@ class Testing(Config):
     DB_PASSWORD = os.getenv('DB_PASSWORD')
     DB_PORT = os.getenv('DB_PORT', '5432')
     DB_NAME = os.getenv('DB_NAME', 'trashtalk_test')
-<<<<<<< HEAD
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
-                                                                   DB_PASSWORD,
-                                                                   DB_HOST,
-                                                                   DB_NAME)
-=======
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(DB_USER,
                                                                       DB_PASSWORD,
                                                                       DB_HOST,
                                                                       DB_NAME)
->>>>>>> 491e4d69d26ed0dd3d502c5d068da246f393b854
 
 
 class Production(Config):
@@ -114,12 +103,6 @@ class Production(Config):
 
     # Access SQL
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}'.format(DB_USER,
-<<<<<<< HEAD
                                                                    DB_PASSWORD,
                                                                    DB_HOST,
                                                                    DB_NAME)
-=======
-                                                                    DB_PASSWORD,
-                                                                    DB_HOST,
-                                                                    DB_NAME)
->>>>>>> 491e4d69d26ed0dd3d502c5d068da246f393b854
