@@ -1,1 +1,7 @@
 -r common.txt
+
+# ^^^^^^^^^^^^^^^^^^^^^^
+# DEPLOYMENT TOOLS
+# ^^^^^^^^^^^^^^^^^^^^^^
+whitenoise==3.3.1
+gunicorn==19.7.1
